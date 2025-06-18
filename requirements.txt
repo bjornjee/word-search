@@ -1,6 +1,6 @@
 matplotlib
-multitasking==0.0.9
+multitasking
 nump
 reportlab
-config==0.4.2
+config
 PyPDF2

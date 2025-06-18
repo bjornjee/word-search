@@ -1,6 +1,8 @@
 # Created by .ignore support plugin (hsz.mobi)
-
 **/.DS_Store
+
+# Project specific
+puzzles/
 
 ### Python template
 # Byte-compiled / optimized / DLL files
