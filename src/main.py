@@ -335,7 +335,7 @@ def worker(in_queue: Queue,out_queue:Queue):
             time.sleep(1)
 
 
-def generate(title,type, length, difficulty, dir, random = False, num_choices = 8):
+def generate(idx, title,type, length, difficulty, dir, random = False, num_choices = 8):
     if (type == 'letters'):
         words = retrieve_words(num_choices, title)
         input_l = ["".join(w.lower().split()) for w in words]
@@ -355,7 +355,7 @@ def generate(title,type, length, difficulty, dir, random = False, num_choices = 
         return type,0
     else:
         pass
-    filename= str(uuid.uuid4())[:6]
+    filename= f"{type}_{idx}"
     grid.to_pdf(os.path.join(dir, filename + ".pdf"), input_l,type)
     return type,1
 
@@ -401,21 +401,20 @@ def create_all(number_of_files):
     write_lock = Lock()
     worker_pool = Pool(NUM_WORKERS, worker, (worker_queue, done_queue,))
 
-    l = os.path.join(PUZZLES_FOLDER,LETTERS)
-    c = os.path.join(PUZZLES_FOLDER,CHINESE)
-    n = os.path.join(PUZZLES_FOLDER,NUMBERS)
+    # All output files will be written directly to PUZZLES_FOLDER, no subfolders
+    dir = PUZZLES_FOLDER
 
-    dir_list = [l,c,n]
-
-    #clean folder
-    for dir in dir_list:
-        if not os.path.isdir(dir):
+    # Clean PUZZLES_FOLDER
+    if not os.path.isdir(dir):
+        os.mkdir(dir)
+    else:
+        if os.listdir(dir):
+            shutil.rmtree(dir)
             os.mkdir(dir)
-        else:
-            if os.listdir(dir):
-                shutil.rmtree(dir)
-                os.mkdir(dir)
-        curr_type = str(dir.split('/')[-1])
+
+    types = [LETTERS, CHINESE, NUMBERS]
+
+    for curr_type in types:
         titles = ['meat', 'plants', 'sports', 'travel']
         l = len(titles)
         random.seed()
@@ -423,45 +422,49 @@ def create_all(number_of_files):
         for i in range(number_of_files):
             r = random.randint(0, l - 1)
             title = titles[r]
-            length=7
-            difficulty='hard'
-            isRandom=True
+            length = 7
+            difficulty = 'hard'
+            isRandom = True
             worker_queue.put((generate, {
-                'title':title,
-                'type':curr_type,
-                'length':length,
-                'difficulty':difficulty,
-                'dir':dir,
-                'random':isRandom,
-                "num_choices":10}))
+                'idx': i,
+                'title': title,
+                'type': curr_type,
+                'length': length,
+                'difficulty': difficulty,
+                'dir': dir,
+                'random': isRandom,
+                "num_choices": 10
+            }))
         # await queues
         while not worker_queue.empty():
             pass
-        counter=0
+        counter = 0
         while counter < number_of_files:
             try:
-                _,c = done_queue.get()
-                counter+=c
+                _, c = done_queue.get()
+                counter += c
             except Exception:
                 pass
         print(f'completed for {curr_type}, counter: {counter}')
         while len(os.listdir(dir)) < number_of_files:
             print(f' num files in {dir}: {len(os.listdir(dir))}')
             pass
-        #merge all files to one pdf
-        merge_pdf(dir)
+        # merge all files to one pdf
+        # Only merge the files created during this iteration
+        created_files = [f"{curr_type}_{i}.pdf" for i in range(number_of_files)]
+        merge_pdf(dir, created_files, curr_type)
         print(f'completed merge for {curr_type}')
     worker_queue.close()
     worker_pool.close()
 
-def merge_pdf(dir):
+def merge_pdf(dir,files, file_type):
     from PyPDF2 import PdfMerger, PdfReader
     mergedObject = PdfMerger()
-    for file in os.listdir(dir):
+    for file in files:
         file_full_path = os.path.join(dir, file)
         mergedObject.append(PdfReader(file_full_path, 'rb'))
         os.remove(file_full_path)
-    mergedObject.write(os.path.join(dir, "yy-{}.pdf".format(dir.split('/')[-1])))
+    mergedObject.write(os.path.join(dir, "yy-{}.pdf".format(file_type)))
 
 
 if __name__ == '__main__':
