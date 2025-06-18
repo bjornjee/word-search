@@ -17,7 +17,7 @@ NUMBERS = "numbers"
 CHINESE = "chinese"
 
 
-random.seed(datetime.now)
+random.seed(datetime.now().timestamp())
 
 # Directions are:
 # +. left to right
@@ -454,11 +454,11 @@ def create_all(number_of_files):
     worker_pool.close()
 
 def merge_pdf(dir):
-    from PyPDF2 import PdfFileMerger, PdfFileReader
-    mergedObject = PdfFileMerger()
+    from PyPDF2 import PdfMerger, PdfReader
+    mergedObject = PdfMerger()
     for file in os.listdir(dir):
         file_full_path = os.path.join(dir, file)
-        mergedObject.append(PdfFileReader(file_full_path, 'rb'))
+        mergedObject.append(PdfReader(file_full_path, 'rb'))
         os.remove(file_full_path)
     mergedObject.write(os.path.join(dir, "yy-{}.pdf".format(dir.split('/')[-1])))
 
