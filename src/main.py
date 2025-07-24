@@ -415,9 +415,9 @@ def create_all(number_of_files):
     types = [LETTERS, CHINESE, NUMBERS]
 
     for curr_type in types:
-        titles = ['meat', 'plants', 'sports', 'travel']
+        titles = ['meat', 'plants', 'sports', 'travel','fruits','animals']
         l = len(titles)
-        random.seed()
+        random.seed(time.time())
         print(f'processing for {curr_type}')
         for i in range(number_of_files):
             r = random.randint(0, l - 1)

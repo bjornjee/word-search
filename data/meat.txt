@@ -38,3 +38,9 @@ shrimp
 steak
 tuna
 wings
+ribs
+patty
+chop
+meatloaf
+burger
+nuggets
