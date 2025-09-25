@@ -1,9 +1,25 @@
 import os
 
+def find_repo_root(current_path):
+    while True:
+        # Check if a .git directory exists in the current path
+        if os.path.exists(os.path.join(current_path, '.git')):
+            return current_path
+        
+        # Move up one directory
+        parent_path = os.path.dirname(current_path)
+        
+        # If we reach the root of the filesystem and haven't found .git, stop
+        if parent_path == current_path:
+            return None  # Or raise an error
+
+        current_path = parent_path
+
 def retrieve(title):
-    PATH = '../data/{}.txt'.format(title)
-    PATH_TEMP = '../data/{}_temp.txt'.format(title)
-    PATH_OLD = '../data/{}_old.txt'.format(title)
+    root_path = find_repo_root(os.getcwd())
+    PATH = '{}/data/{}.txt'.format(root_path,title)
+    PATH_TEMP = '{}/data/{}_temp.txt'.format(root_path,title)
+    PATH_OLD = '{}/data/{}_old.txt'.format(root_path,title)
     words = []
     with open(PATH,'r+') as file:
         for line in file:
@@ -36,6 +52,6 @@ def retrieve_comma():
         file.close()
 
 if __name__ == '__main__':
-    l = ['plants','sports','travel','fruits','geography']
+    l = ['meat', 'plants', 'sports', 'travel','fruits','animals']
     for i in l:
         retrieve(i)

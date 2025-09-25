@@ -20,7 +20,6 @@ continent
 cruise
 date
 delay
-destination
 driver
 excursion
 fare
@@ -59,7 +58,6 @@ safari
 sail
 seat
 ship
-sightseeing
 space
 station
 stay
