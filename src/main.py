@@ -16,6 +16,8 @@ PUZZLES_FOLDER = os.path.join('/'.join(os.getcwd().split('/')[:-1]),"puzzles")
 LETTERS = "letters"
 NUMBERS = "numbers"
 CHINESE = "chinese"
+CHARACTER_BUDGET = 66
+
 
 
 random.seed(datetime.now().timestamp())
@@ -294,14 +296,16 @@ def retrieve_words(num_of_words,title='animals'):
     PATH = '../data/{}.txt'.format(title)
     from numpy.random import choice as ch
     out = []
-    with open(PATH,'r') as file:
-        words = [line.rstrip().lower() for line in file]
-        length = len(words)
-        positions = ch(length,num_of_words,replace=False)
-        for i in positions:
-            out.append(words[i])
-        #print("OUT: {}".format(out))
-        file.close()
+    try:
+        with open(PATH,'r') as file:
+            words = [line.rstrip().lower() for line in file]
+            while not out or sum([len(w) for w in out]) > CHARACTER_BUDGET:
+                out=[]
+                positions = ch(len(words),num_of_words,replace=False)
+                for i in positions:
+                    out.append(words[i])
+    except Exception as e:
+        print(f"error while retrieve letters :{e}")
     return out
 
 def retrieve_chinese_words(num_of_words):
@@ -309,14 +313,14 @@ def retrieve_chinese_words(num_of_words):
     PATH = '../data/chinese_idioms.txt'
     from numpy.random import choice as ch
     out = []
+
     with open(PATH,'r') as file:
         words = [line.rstrip().lower() for line in file]
-        length = len(words)
-        positions = ch(length,num_of_words,replace=False)
-        for i in positions:
-            out.append(words[i])
-        #print("OUT: {}".format(out))
-        file.close()
+        while not out or sum([len(w) for w in out]) > CHARACTER_BUDGET:
+            out=[]
+            positions = ch(len(words),num_of_words,replace=False)
+            for i in positions:
+                out.append(words[i])
     return out
 
 def worker(in_queue: Queue,out_queue:Queue):
@@ -460,11 +464,14 @@ def create_all(number_of_files):
 def merge_pdf(dir,files, file_type):
     from PyPDF2 import PdfMerger, PdfReader
     mergedObject = PdfMerger()
+    file_counter = 0
     for file in files:
+        file_counter+=1
         file_full_path = os.path.join(dir, file)
         mergedObject.append(PdfReader(file_full_path, 'rb'))
         os.remove(file_full_path)
     mergedObject.write(os.path.join(dir, "yy-{}.pdf".format(file_type)))
+    print(f"{file_type} has {file_counter} files")
 
 
 if __name__ == '__main__':
