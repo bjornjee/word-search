@@ -5,9 +5,8 @@ import random
 import shutil
 import sys
 from datetime import datetime
-from multiprocessing import Pool, Queue, Value, Lock, Process
+from multiprocessing import Pool, Queue, Lock
 import time
-import uuid
 import os
 
 from config import *
@@ -211,12 +210,13 @@ class Grid(object):
         # Sort words into descending order of length
         words = list(words)
         words.sort(key=lambda x: len(x), reverse=True)
-
+        prev_dir = (0,0)
         for word in words:
             wordlen = len(word)
             while True:
                 x, y, xd, yd = self.pick_word_pos(wordlen, directions)
-                if self.write_word(word, x, y, xd, yd):
+                if (xd,yd) != prev_dir and self.write_word(word, x, y, xd, yd):
+                    prev_dir = (xd,yd)
                     self.words.append((word, x, y, xd, yd))
                     break
                 tries -= 1
