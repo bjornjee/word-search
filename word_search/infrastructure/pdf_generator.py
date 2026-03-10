@@ -45,7 +45,7 @@ def build_pdf(puzzle: Puzzle, filename: str) -> None:
 
     table_style = [
         ("ALIGN", (0, 0), (-1, -1), "CENTER"),
-        ("VALIGN", (0, 0), (-1, -1), "TOP"),
+        ("VALIGN", (0, 0), (-1, -1), "MIDDLE"),
         ("BOX", (0, 0), (-1, -1), 1, colors.black),
         ("FONTSIZE", (0, 0), (-1, -1), 22),
     ]
@@ -59,12 +59,20 @@ def build_pdf(puzzle: Puzzle, filename: str) -> None:
     font_name = FONT_MAP.get(puzzle_type, "Vera")
     heading_style = ParagraphStyle(
         "heading",
-        fontName=font_name,
+        fontName="Vera",
         fontSize=32,
         alignment=1,
     )
-    body_style = ParagraphStyle(
-        "body",
+    label_style = ParagraphStyle(
+        "label",
+        fontName="Vera",
+        fontSize=18,
+        leading=30,
+        spaceBefore=10,
+        spaceAfter=10,
+    )
+    words_style = ParagraphStyle(
+        "words",
         fontName=font_name,
         fontSize=18,
         leading=30,
@@ -80,12 +88,12 @@ def build_pdf(puzzle: Puzzle, filename: str) -> None:
         Spacer(1, 2 * cm),
         table,
         Spacer(1, 0.5 * cm),
-        Paragraph(label, body_style),
+        Paragraph(label, label_style),
     ]
 
     words = puzzle.words
     mid = len(words) // 2
-    elements.append(Paragraph(", ".join(words[:mid]), body_style))
-    elements.append(Paragraph(", ".join(words[mid:]), body_style))
+    elements.append(Paragraph(", ".join(words[:mid]), words_style))
+    elements.append(Paragraph(", ".join(words[mid:]), words_style))
 
     doc.build(elements)
