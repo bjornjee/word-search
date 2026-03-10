@@ -1,6 +1,0 @@
-matplotlib
-multitasking
-nump
-reportlab
-config
-PyPDF2
