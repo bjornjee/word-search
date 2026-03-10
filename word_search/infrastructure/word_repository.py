@@ -50,7 +50,7 @@ def generate_numbers(num: int, max_length: int = 4, fixed: bool = False) -> list
         if fixed:
             value = np.random.randint(10 ** (max_length - 1), 10**max_length)
         else:
-            digits = np.random.randint(1, max_length + 1)
+            digits = np.random.randint(3, max_length + 1)
             value = np.random.randint(10 ** (digits - 1), 10**digits)
         out.append(str(value))
     return out

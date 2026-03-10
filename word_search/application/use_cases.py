@@ -17,7 +17,7 @@ def generate_single_puzzle(
     num_words: int,
     random_numbers: bool,
 ) -> tuple[str, int]:
-    max_length_map = {"letters": 10, "chinese": 10, "numbers": 4, "shapes": 4}
+    max_length_map = {"letters": 10, "chinese": 10, "numbers": 7, "shapes": 4}
     max_length = max_length_map.get(puzzle_type, 10)
 
     words = get_words_for_type(
