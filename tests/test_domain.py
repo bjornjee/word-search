@@ -1,4 +1,3 @@
-
 from word_search.domain.entities import PUZZLE_STYLES, Grid, PlacedWord
 from word_search.domain.services import fill_grid, generate_grid
 from word_search.domain.value_objects import ALL_DIRECTIONS, Direction
