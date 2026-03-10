@@ -11,12 +11,17 @@ import os
 
 from config import *
 
-PUZZLES_FOLDER = os.path.join('/'.join(os.getcwd().split('/')[:-1]),"puzzles")
+PUZZLES_FOLDER = os.path.join("/".join(os.getcwd().split("/")[:-1]), "puzzles")
 LETTERS = "letters"
 NUMBERS = "numbers"
 CHINESE = "chinese"
 CHARACTER_BUDGET = 66
-
+MAX_WORD_LENGTH = {
+    "letters": 10,
+    "chinese": 10,
+    "numbers": 4,
+    "shapes": 4,
+}
 
 
 random.seed(datetime.now().timestamp())
@@ -27,28 +32,24 @@ random.seed(datetime.now().timestamp())
 # .+ top to bottom
 # .- bottom to top
 
-all_directions = ('+-', '+.', '++', '.+', '.-', '--', '-.', '-+')
+all_directions = ("+-", "+.", "++", ".+", ".-", "--", "-.", "-+")
 
 styles = {
-    'easy': ('10x10', ('+.', '.+')),
-    'standard': ('10x10', ('+-', '+.', '++', '.+', '.-', '-.')),
-    'hard': ('12x12', all_directions),
-    'ying ying': ('10x10', ('+.','++','.+, +-'))
+    "easy": ("10x10", ("+.", ".+")),
+    "standard": ("10x10", ("+-", "+.", "++", ".+", ".-", "-.")),
+    "hard": ("12x12", all_directions),
+    "ying ying": ("10x10", ("+.", "++", ".+, +-")),
 }
 
-confi = {
-    '10x10': 1.8,
-    '12x12': 1.5,
-    '15x15': (1.3,22,16)
-}
+confi = {"10x10": 1.8, "12x12": 1.5, "15x15": (1.3, 22, 16)}
 
 dirconv = {
-    '-': -1,
-    '.': 0,
-    '+': 1,
+    "-": -1,
+    ".": 0,
+    "+": 1,
 }
 
-letters = u"abcdefghijklmnopqrstuvwxyz"
+letters = "abcdefghijklmnopqrstuvwxyz"
 numbers = "0123456789"
 shapes = "◊●♠♣♥▲▼*%#@"
 
@@ -57,23 +58,21 @@ class Grid(object):
     def __init__(self, wid, hgt):
         self.wid = wid
         self.hgt = hgt
-        self.data = ['.'] * (wid * hgt)
-        self.used = [' '] * (wid * hgt)
+        self.data = ["."] * (wid * hgt)
+        self.used = [" "] * (wid * hgt)
         self.words = []
 
     def to_text(self):
         result = []
         for row in range(self.hgt):
-            result.append(''.join(self.data[row * self.wid:
-                                            (row + 1) * self.wid]))
-        return '\n'.join(result)
+            result.append("".join(self.data[row * self.wid : (row + 1) * self.wid]))
+        return "\n".join(result)
 
     def used_to_text(self):
         result = []
         for row in range(self.hgt):
-            result.append(''.join(self.used[row * self.wid:
-                                            (row + 1) * self.wid]))
-        return '\n'.join(result)
+            result.append("".join(self.used[row * self.wid : (row + 1) * self.wid]))
+        return "\n".join(result)
 
     def to_pdf(self, filename, words, type):
         from reportlab.pdfgen import canvas
@@ -89,76 +88,83 @@ class Grid(object):
         from reportlab.lib.units import inch
         from reportlab.pdfbase.cidfonts import UnicodeCIDFont
 
-        pdfmetrics.registerFont(TTFont('Vera', 'Vera.ttf'))
-        #pdfmetrics.registerFont(TTFont('Wingding', './winding.ttf'))
-        font_chinese = 'STSong-Light'  # from Adobe's Asian Language Packs
-        font_shape = 'Courier'
+        pdfmetrics.registerFont(TTFont("Vera", "Vera.ttf"))
+        # pdfmetrics.registerFont(TTFont('Wingding', './winding.ttf'))
+        font_chinese = "STSong-Light"  # from Adobe's Asian Language Packs
+        font_shape = "Courier"
         pdfmetrics.registerFont(UnicodeCIDFont(font_chinese))
-        doc = SimpleDocTemplate(filename, pagesize=A4, topMargin = 28, creator = 'Bjorn')
-        data = [self.data[x: x + self.wid] for x in range(0, len(self.data), self.wid)]
+        doc = SimpleDocTemplate(filename, pagesize=A4, topMargin=28, creator="Bjorn")
+        data = [self.data[x : x + self.wid] for x in range(0, len(self.data), self.wid)]
         l = cm * 1.5
         t = Table(data, len(data[0]) * [l], len(data) * [l])
-        t.setStyle(TableStyle([('ALIGN', (0, 0), (-1, -1), 'CENTER'),
-                               ('VALIGN', (0, 0), (-1, -1), 'TOP'),
-                               ('BOX', (0, 0), (-1, -1), 1, colors.black),
-                               ('FONTSIZE', (0, 0), (-1, -1), 22),
-                               ]))
-        if (type == 'chinese'):
-            t.setStyle(TableStyle([('ALIGN', (0, 0), (-1, -1), 'CENTER'),
-                                   ('VALIGN', (0, 0), (-1, -1), 'TOP'),
-                                   ('BOX', (0, 0), (-1, -1), 1, colors.black),
-                                   ('FONTSIZE', (0, 0), (-1, -1), 22),
-                                   ('FONTNAME', (0, 0), (-1, -1), font_chinese)
-                                   ]))
+        t.setStyle(
+            TableStyle(
+                [
+                    ("ALIGN", (0, 0), (-1, -1), "CENTER"),
+                    ("VALIGN", (0, 0), (-1, -1), "TOP"),
+                    ("BOX", (0, 0), (-1, -1), 1, colors.black),
+                    ("FONTSIZE", (0, 0), (-1, -1), 22),
+                ]
+            )
+        )
+        if type == "chinese":
+            t.setStyle(
+                TableStyle(
+                    [
+                        ("ALIGN", (0, 0), (-1, -1), "CENTER"),
+                        ("VALIGN", (0, 0), (-1, -1), "TOP"),
+                        ("BOX", (0, 0), (-1, -1), 1, colors.black),
+                        ("FONTSIZE", (0, 0), (-1, -1), 22),
+                        ("FONTNAME", (0, 0), (-1, -1), font_chinese),
+                    ]
+                )
+            )
         style = ParagraphStyle(
-            'default',
-            fontName='Vera',
+            "default",
+            fontName="Vera",
             fontSize=24,
             leading=18,
             spaceBefore=10,
             spaceAfter=10,
-            bulletFontName='Vera',
+            bulletFontName="Vera",
             bulletFontSize=18,
             bulletIndent=4,
         )
         style_heading = ParagraphStyle(
-            'default',
-            alignment=1,
-            fontName='Vera',
-            fontSize=32
+            "default", alignment=1, fontName="Vera", fontSize=32
         )
-        if (type == 'letters'):
-            elements = [Paragraph('WORD SEARCH', style_heading, None)]
-        elif(type == 'numbers'):
-            elements = [Paragraph('NUMBER SEARCH', style_heading, None)]
-        elif (type == 'chinese'):
-            elements = [Paragraph('CHINESE SEARCH', style_heading, None)]
+        if type == "letters":
+            elements = [Paragraph("WORD SEARCH", style_heading, None)]
+        elif type == "numbers":
+            elements = [Paragraph("NUMBER SEARCH", style_heading, None)]
+        elif type == "chinese":
+            elements = [Paragraph("CHINESE SEARCH", style_heading, None)]
             style.fontName = font_chinese
             style_heading.fontName = font_chinese
-        elif (type == 'shapes'):
-            elements = [Paragraph('SHAPE SEARCH', style_heading, None)]
+        elif type == "shapes":
+            elements = [Paragraph("SHAPE SEARCH", style_heading, None)]
             style.fontName = font_shape
             style_heading.fontName = font_shape
         elements.append(Spacer(1, 2 * cm))
         elements.append(t)
         elements.append(Spacer(1, 0.5 * cm))
         style.fontSize = 18
-        if (type == 'letters' or type == 'chinese'):
-            elements.append(Paragraph('Find the words :',style))
-        elif (type == 'numbers'):
-            elements.append(Paragraph('Find the numbers: ',style))
-        elif (type == 'shapes'):
-            elements.append(Paragraph('Find the shapes: ',style))
+        if type == "letters" or type == "chinese":
+            elements.append(Paragraph("Find the words :", style))
+        elif type == "numbers":
+            elements.append(Paragraph("Find the numbers: ", style))
+        elif type == "shapes":
+            elements.append(Paragraph("Find the shapes: ", style))
         style.leading = 30
         style.fontSize = 18
-        #add words
-        #first half
+        # add words
+        # first half
         length = len(words)
-        #second half
-        elements.append(Paragraph(', '.join(words[:length//2]),style))
-        elements.append(Paragraph(', '.join(words[length // 2:]), style))
+        # second half
+        elements.append(Paragraph(", ".join(words[: length // 2]), style))
+        elements.append(Paragraph(", ".join(words[length // 2 :]), style))
 
-        '''
+        """
         if(type == 'chinese'):
             out = ""
             for i in range(len(words)):
@@ -173,7 +179,7 @@ class Grid(object):
                     s = word
                 elif(n % 2 == 1):
                     elements.append(Paragraph(fill_spaces(s,word),style))
-        '''
+        """
         doc.build(elements)
 
     def pick_word_pos(self, wordlen, directions):
@@ -191,7 +197,7 @@ class Grid(object):
         for c in word:
             p = x + self.wid * y
             e = self.data[p]
-            if e != '.' and e != c:
+            if e != "." and e != c:
                 return False
             x += xd
             y += yd
@@ -200,7 +206,7 @@ class Grid(object):
         for c in word:
             p = x + self.wid * y
             self.data[p] = c
-            self.used[p] = '.'
+            self.used[p] = "."
             x += xd
             y += yd
 
@@ -210,13 +216,13 @@ class Grid(object):
         # Sort words into descending order of length
         words = list(words)
         words.sort(key=lambda x: len(x), reverse=True)
-        prev_dir = (0,0)
+        prev_dir = (0, 0)
         for word in words:
             wordlen = len(word)
             while True:
                 x, y, xd, yd = self.pick_word_pos(wordlen, directions)
-                if (xd,yd) != prev_dir and self.write_word(word, x, y, xd, yd):
-                    prev_dir = (xd,yd)
+                if (xd, yd) != prev_dir and self.write_word(word, x, y, xd, yd):
+                    prev_dir = (xd, yd)
                     self.words.append((word, x, y, xd, yd))
                     break
                 tries -= 1
@@ -226,35 +232,35 @@ class Grid(object):
 
     def fill_in_letters(self, words):
         # 90% time hard, 10% not hard
-        should_be_hard = random.randint(0,9) != 0
+        should_be_hard = random.randint(0, 9) != 0
         pool = letters
         if should_be_hard:
-            pool = ''.join([w[:3] for w in words])
+            pool = "".join([w[:3] for w in words])
         for p in range(self.wid * self.hgt):
-            if self.data[p] == '.':
+            if self.data[p] == ".":
                 self.data[p] = random.choice(pool)
 
     def fill_in_numbers(self):
         for p in range(self.wid * self.hgt):
-            if self.data[p] == '.':
+            if self.data[p] == ".":
                 self.data[p] = random.choice(numbers)
 
     def fill_in_shapes(self):
         for p in range(self.wid * self.hgt):
-            if self.data[p] == '.':
+            if self.data[p] == ".":
                 self.data[p] = random.choice(shapes)
 
-    def fill_in_chinese(self,words):
-        chinese_pool = ''.join([w[:3] for w in words])
+    def fill_in_chinese(self, words):
+        chinese_pool = "".join([w[:3] for w in words])
         for p in range(self.wid * self.hgt):
-            if self.data[p] == '.':
+            if self.data[p] == ".":
                 self.data[p] = random.choice(chinese_pool)
 
 
-def make_grid(stylep="standard", words=[], type = 'letters',tries=100):
+def make_grid(stylep="standard", words=[], type="letters", tries=100):
     # Parse and validate the style parameter.
     size, directions = styles.get(stylep, (stylep, all_directions))
-    size = size.split('x')
+    size = size.split("x")
     if len(size) != 2:
         raise ValueError("Invalid style parameter: %s" % stylep)
     try:
@@ -262,8 +268,9 @@ def make_grid(stylep="standard", words=[], type = 'letters',tries=100):
     except ValueError:
         raise ValueError("Invalid style parameter: %s" % stylep)
 
-    directions = [(dirconv[direction[0]], dirconv[direction[1]])
-                  for direction in directions]
+    directions = [
+        (dirconv[direction[0]], dirconv[direction[1]]) for direction in directions
+    ]
 
     while True:
         grid = Grid(wid, hgt)
@@ -272,138 +279,155 @@ def make_grid(stylep="standard", words=[], type = 'letters',tries=100):
         tries -= 1
         if tries <= 0:
             return None
-    if (type == 'letters'):
+    if type == "letters":
         grid.fill_in_letters(words)
-    elif (type == 'numbers'):
+    elif type == "numbers":
         grid.fill_in_numbers()
-    elif(type == 'chinese'):
+    elif type == "chinese":
         grid.fill_in_chinese(words)
-    elif(type == 'shapes'):
+    elif type == "shapes":
         grid.fill_in_shapes()
     return grid
 
+
 def fill_spaces(old_string, new_string):
-    for i in range (40- len(new_string)-len(old_string)):
-        old_string += '&nbsp;'
+    for i in range(40 - len(new_string) - len(old_string)):
+        old_string += "&nbsp;"
     old_string += new_string
     return old_string
 
-#TODO: Generate words max length 10
 
-
-def retrieve_words(num_of_words,title='animals'):
+def retrieve_words(num_of_words, title="animals", max_length=10):
     import numpy as np
-    PATH = '../data/{}.txt'.format(title)
+
+    PATH = "../data/{}.txt".format(title)
     from numpy.random import choice as ch
+
     out = []
     try:
-        with open(PATH,'r') as file:
+        with open(PATH, "r") as file:
             words = [line.rstrip().lower() for line in file]
+            words = [w for w in words if len(w) <= max_length]
             while not out or sum([len(w) for w in out]) > CHARACTER_BUDGET:
-                out=[]
-                positions = ch(len(words),num_of_words,replace=False)
+                out = []
+                positions = ch(len(words), num_of_words, replace=False)
                 for i in positions:
                     out.append(words[i])
     except Exception as e:
         print(f"error while retrieve letters :{e}")
     return out
 
-def retrieve_chinese_words(num_of_words):
+
+def retrieve_chinese_words(num_of_words, max_length=10):
     import numpy as np
-    PATH = '../data/chinese_idioms.txt'
+
+    PATH = "../data/chinese_idioms.txt"
     from numpy.random import choice as ch
+
     out = []
 
-    with open(PATH,'r') as file:
+    with open(PATH, "r") as file:
         words = [line.rstrip().lower() for line in file]
+        words = [w for w in words if len(w) <= max_length]
         while not out or sum([len(w) for w in out]) > CHARACTER_BUDGET:
-            out=[]
-            positions = ch(len(words),num_of_words,replace=False)
+            out = []
+            positions = ch(len(words), num_of_words, replace=False)
             for i in positions:
                 out.append(words[i])
     return out
 
-def worker(in_queue: Queue,out_queue:Queue):
+
+def worker(in_queue: Queue, out_queue: Queue):
     while True:
         try:
             task = in_queue.get(timeout=3)
-            func,args = task
+            func, args = task
             try:
                 # this assumes func is lock safe
                 result = func(**args)
                 out_queue.put(result)
             except:
-                in_queue.put((func,args))
+                in_queue.put((func, args))
 
         except Exception as e:
             time.sleep(1)
 
 
-def generate(idx, title,type, length, difficulty, dir, random = False, num_choices = 8):
-    if (type == 'letters'):
-        words = retrieve_words(num_choices, title)
+def generate(idx, title, type, length, difficulty, dir, random=False, num_choices=8):
+    max_length = MAX_WORD_LENGTH.get(type, 10)
+    if type == "letters":
+        words = retrieve_words(num_choices, title, max_length)
         input_l = ["".join(w.lower().split()) for w in words]
-    elif (type == 'numbers' and not random):
-        input_l = generate_numbers_fixed(num_choices,length)
-    elif (type == 'numbers' and random):
-        input_l = generate_numbers_random(num_choices)
-    elif (type == 'chinese'):
-        words = retrieve_chinese_words(num_choices)
+    elif type == "numbers" and not random:
+        input_l = generate_numbers_fixed(num_choices, max_length)
+    elif type == "numbers" and random:
+        input_l = generate_numbers_random(num_choices, max_length)
+    elif type == "chinese":
+        words = retrieve_chinese_words(num_choices, max_length)
         input_l = ["".join(w.lower().split()) for w in words]
-    elif (type == 'shapes'):
-        input_l = generate_shapes(num_choices, length)
-    grid = make_grid(difficulty, input_l,type)
+    elif type == "shapes":
+        input_l = generate_shapes(num_choices, max_length)
+    grid = make_grid(difficulty, input_l, type)
     if grid is None:
-        print(
-            "Can't make a grid")
-        return type,0
+        print("Can't make a grid")
+        return type, 0
     else:
         pass
-    filename= f"{type}_{idx}"
-    grid.to_pdf(os.path.join(dir, filename + ".pdf"), input_l,type)
-    return type,1
+    filename = f"{type}_{idx}"
+    grid.to_pdf(os.path.join(dir, filename + ".pdf"), input_l, type)
+    return type, 1
 
 
-def generate_numbers_random(num,length = 4):
+def generate_numbers_random(num, max_length=4):
     out = []
-    c= [4,5,6,7]
+    c = list(range(1, max_length + 1))
     random.seed()
     for i in range(num):
         q = random.choice(c)
-        a = random.randrange(10**(q-1),10**(q),1)
+        a = random.randrange(10 ** (q - 1), 10 ** (q), 1)
         out.append(str(a))
     return out
 
-def generate_numbers_fixed(num, length=4):
+
+def generate_numbers_fixed(num, max_length=4):
     out = []
     random.seed()
     for i in range(num):
-        a = random.randrange(10 ** (length - 1), 10 ** (length), 1)
+        a = random.randrange(10 ** (max_length - 1), 10 ** (max_length), 1)
         out.append(str(a))
     return out
 
-def generate_shapes(num, length = 4):
+
+def generate_shapes(num, max_length=4):
     out = []
-    c = [4,5,6,7]
+    c = list(range(1, max_length + 1))
     random.seed()
     for i in range(num):
         q = random.choice(c)
-        random_chars = [random.randint(0,len(shapes)-1) for _ in range(q)]
-        a = ''.join([shapes[r] for r in random_chars])
+        random_chars = [random.randint(0, len(shapes) - 1) for _ in range(q)]
+        a = "".join([shapes[r] for r in random_chars])
         out.append(a)
     return out
 
 
-#TODO: Format words to find at the bottom of PDF
+# TODO: Format words to find at the bottom of PDF
+
 
 def create_all(number_of_files):
-    NUM_WORKERS=4
-    print(f'running with {NUM_WORKERS} subprocesses')
+    NUM_WORKERS = 4
+    print(f"running with {NUM_WORKERS} subprocesses")
     # spin up workers
     worker_queue = Queue()
     done_queue = Queue()
     write_lock = Lock()
-    worker_pool = Pool(NUM_WORKERS, worker, (worker_queue, done_queue,))
+    worker_pool = Pool(
+        NUM_WORKERS,
+        worker,
+        (
+            worker_queue,
+            done_queue,
+        ),
+    )
 
     # All output files will be written directly to PUZZLES_FOLDER, no subfolders
     dir = PUZZLES_FOLDER
@@ -419,26 +443,31 @@ def create_all(number_of_files):
     types = [LETTERS, CHINESE, NUMBERS]
 
     for curr_type in types:
-        titles = ['meat', 'plants', 'sports', 'travel','fruits','animals']
+        titles = ["meat", "plants", "sports", "travel", "fruits", "animals"]
         l = len(titles)
         random.seed(time.time())
-        print(f'processing for {curr_type}')
+        print(f"processing for {curr_type}")
         for i in range(number_of_files):
             r = random.randint(0, l - 1)
             title = titles[r]
             length = 7
-            difficulty = 'hard'
+            difficulty = "hard"
             isRandom = True
-            worker_queue.put((generate, {
-                'idx': i,
-                'title': title,
-                'type': curr_type,
-                'length': length,
-                'difficulty': difficulty,
-                'dir': dir,
-                'random': isRandom,
-                "num_choices": 10
-            }))
+            worker_queue.put(
+                (
+                    generate,
+                    {
+                        "idx": i,
+                        "title": title,
+                        "type": curr_type,
+                        "length": length,
+                        "difficulty": difficulty,
+                        "dir": dir,
+                        "random": isRandom,
+                        "num_choices": 10,
+                    },
+                )
+            )
         # await queues
         while not worker_queue.empty():
             pass
@@ -449,33 +478,34 @@ def create_all(number_of_files):
                 counter += c
             except Exception:
                 pass
-        print(f'completed for {curr_type}, counter: {counter}')
+        print(f"completed for {curr_type}, counter: {counter}")
         while len(os.listdir(dir)) < number_of_files:
-            print(f' num files in {dir}: {len(os.listdir(dir))}')
+            print(f" num files in {dir}: {len(os.listdir(dir))}")
             pass
         # merge all files to one pdf
         # Only merge the files created during this iteration
         created_files = [f"{curr_type}_{i}.pdf" for i in range(number_of_files)]
         merge_pdf(dir, created_files, curr_type)
-        print(f'completed merge for {curr_type}')
+        print(f"completed merge for {curr_type}")
     worker_queue.close()
     worker_pool.close()
 
-def merge_pdf(dir,files, file_type):
+
+def merge_pdf(dir, files, file_type):
     from PyPDF2 import PdfMerger, PdfReader
+
     mergedObject = PdfMerger()
     file_counter = 0
     for file in files:
-        file_counter+=1
+        file_counter += 1
         file_full_path = os.path.join(dir, file)
-        mergedObject.append(PdfReader(file_full_path, 'rb'))
+        mergedObject.append(PdfReader(file_full_path, "rb"))
         os.remove(file_full_path)
     mergedObject.write(os.path.join(dir, "yy-{}.pdf".format(file_type)))
     print(f"{file_type} has {file_counter} files")
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     s = time.perf_counter()
     create_all(200)
-    print(time.perf_counter()-s)
-
+    print(time.perf_counter() - s)
