@@ -51,6 +51,9 @@ def generate_grid(
 
 
 def fill_grid(grid: Grid, words: list[str], puzzle_type: str) -> Puzzle:
+    if not words:
+        raise ValueError("words must not be empty")
+
     pool_map = {
         "letters": "".join(w[:3] for w in words),
         "numbers": "0123456789",

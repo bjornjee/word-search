@@ -1,6 +1,13 @@
 # Word Search Generator
 
-A simple Python tool to generate word search puzzles in PDF format, including support for English, numbers, and Chinese characters.
+A Python tool to generate word search puzzles in PDF format with support for English words, numbers, and Chinese characters.
+
+## Features
+
+- **Multiple puzzle types**: Letters, numbers, Chinese characters, and shapes
+- **Difficulty levels**: Easy, standard, and hard (varying grid sizes and word directions)
+- **Configurable**: Adjustable word count, length, and character budget per puzzle type
+- **PDF output**: Clean, printable puzzles with word lists
 
 ## Example
 
@@ -22,18 +29,22 @@ make install
 
 ### Running the Generator
 
-To generate the puzzles, run:
-
 ```bash
 make run
 ```
 
-This will generate the PDF files in the `puzzles/` directory.
+This generates 200 puzzles of each type (letters, numbers, chinese) in the `puzzles/` directory.
 
 ### Cleaning Up
 
-To remove generated puzzles and temporary files:
-
 ```bash
 make clean
+```
+
+## Development
+
+```bash
+make test      # Run tests
+make test-cov  # Run tests with coverage
+make lint      # Run linter
 ```

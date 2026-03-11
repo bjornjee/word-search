@@ -155,3 +155,12 @@ class TestFillGrid:
         puzzle = fill_grid(grid, ["中文", "测试"], "chinese")
         assert puzzle.puzzle_type == "chinese"
         assert "." not in puzzle.grid.data
+
+    def test_fill_grid_raises_on_empty_words(self):
+        grid = Grid(10, 10)
+        grid.place_word("cat", 0, 0, 1, 0)
+        try:
+            fill_grid(grid, [], "letters")
+            assert False, "Should have raised ValueError"
+        except ValueError as e:
+            assert "must not be empty" in str(e)

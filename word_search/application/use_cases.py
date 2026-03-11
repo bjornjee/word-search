@@ -8,6 +8,13 @@ from word_search.config import PUZZLES_FOLDER, WORD_CATEGORIES
 from word_search.domain import fill_grid, generate_grid
 from word_search.infrastructure import build_pdf, get_words_for_type
 
+PUZZLE_CONFIG = {
+    "letters": {"min_length": 3, "max_length": 7, "budget": 70},
+    "numbers": {"min_length": 3, "max_length": 6, "budget": 50},
+    "chinese": {"min_length": 2, "max_length": 6, "budget": 70},
+    "shapes": {"min_length": 2, "max_length": 4, "budget": 50},
+}
+
 
 def generate_single_puzzle(
     idx: int,
@@ -17,12 +24,22 @@ def generate_single_puzzle(
     num_words: int,
     random_numbers: bool,
 ) -> tuple[str, int]:
-    max_length_map = {"letters": 7, "chinese": 6, "numbers": 6, "shapes": 4}
-    max_length = max_length_map.get(puzzle_type, 10)
+    config = PUZZLE_CONFIG.get(
+        puzzle_type, {"min_length": 3, "max_length": 10, "budget": 50}
+    )
 
     words = get_words_for_type(
-        puzzle_type, num_words, category, max_length, random_numbers
+        puzzle_type,
+        num_words,
+        category,
+        min_length=config["min_length"],
+        max_length=config["max_length"],
+        budget=config["budget"],
+        random_numbers=random_numbers,
     )
+
+    if not words:
+        return puzzle_type, 0
 
     grid = generate_grid(words, difficulty)
     if grid is None:
