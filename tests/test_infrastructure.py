@@ -14,12 +14,14 @@ from word_search.infrastructure.word_repository import (
 
 class TestWordRepository:
     def test_retrieve_words(self):
-        words = retrieve_words(5, "animals", max_length=10)
+        words = retrieve_words(5, "animals", min_length=3, max_length=10)
         assert len(words) == 5
-        assert all(len(w) <= 10 for w in words)
+        assert all(3 <= len(w) <= 10 for w in words)
 
     def test_retrieve_words_character_budget(self):
-        words = retrieve_words(5, "animals", max_length=10, character_budget=30)
+        words = retrieve_words(
+            5, "animals", min_length=3, max_length=10, character_budget=30
+        )
         total = sum(len(w) for w in words)
         assert total <= 30
 
@@ -28,34 +30,98 @@ class TestWordRepository:
         assert len(words) <= 5
 
     def test_generate_numbers_random(self):
-        numbers = generate_numbers(5, max_length=4, fixed=False)
+        numbers = generate_numbers(5, min_length=3, max_length=6, fixed=False)
         assert len(numbers) == 5
         for num in numbers:
-            assert 1 <= len(num) <= 4
+            assert 3 <= len(num) <= 6
 
     def test_generate_numbers_fixed(self):
-        numbers = generate_numbers(5, max_length=4, fixed=True)
+        numbers = generate_numbers(5, min_length=3, max_length=6, fixed=True)
         assert len(numbers) == 5
         for num in numbers:
-            assert len(num) == 4
+            assert len(num) == 6
 
     def test_generate_shapes(self):
-        shapes = generate_shapes(5, max_length=4)
+        shapes = generate_shapes(5, min_length=2, max_length=4)
         assert len(shapes) == 5
         for shape in shapes:
-            assert 1 <= len(shape) <= 4
+            assert 2 <= len(shape) <= 4
 
     def test_get_words_for_type_letters(self):
-        words = get_words_for_type("letters", 5, "animals", 10, True)
+        words = get_words_for_type(
+            "letters",
+            5,
+            "animals",
+            min_length=3,
+            max_length=10,
+            budget=50,
+            random_numbers=True,
+        )
         assert len(words) <= 5
 
     def test_get_words_for_type_numbers(self):
-        words = get_words_for_type("numbers", 5, None, 4, True)
+        words = get_words_for_type(
+            "numbers",
+            5,
+            None,
+            min_length=3,
+            max_length=6,
+            budget=60,
+            random_numbers=True,
+        )
         assert len(words) == 5
 
     def test_get_words_for_type_chinese(self):
-        words = get_words_for_type("chinese", 5, None, 10, True)
+        words = get_words_for_type(
+            "chinese",
+            5,
+            None,
+            min_length=2,
+            max_length=10,
+            budget=40,
+            random_numbers=True,
+        )
         assert len(words) <= 5
+
+    def test_retrieve_words_no_matching_words(self):
+        words = retrieve_words(5, "animals", min_length=100, max_length=200)
+        assert len(words) == 0
+
+    def test_retrieve_words_more_than_available(self):
+        words = retrieve_words(1000, "animals", min_length=3, max_length=10)
+        assert len(words) == 0
+
+    def test_retrieve_words_tight_budget(self):
+        words = retrieve_words(
+            10, "animals", min_length=3, max_length=7, character_budget=30
+        )
+        assert len(words) <= 10
+        assert sum(len(w) for w in words) <= 30
+
+    def test_retrieve_chinese_words_tight_budget(self):
+        words = retrieve_chinese_words(
+            10, min_length=3, max_length=4, character_budget=30
+        )
+        assert len(words) <= 10
+
+    def test_generate_numbers_tight_budget(self):
+        numbers = generate_numbers(10, min_length=3, max_length=4, character_budget=30)
+        assert len(numbers) <= 10
+
+    def test_generate_shapes_tight_budget(self):
+        shapes = generate_shapes(10, min_length=2, max_length=3, character_budget=15)
+        assert len(shapes) <= 10
+
+    def test_retrieve_words_greedy_resample(self):
+        words = retrieve_words(
+            10, "animals", min_length=3, max_length=7, character_budget=31
+        )
+        assert len(words) == 10
+        assert sum(len(w) for w in words) <= 31
+
+    def test_get_words_for_type_unknown(self):
+        words = get_words_for_type("unknown_type", 5, None, 3, 10, 50, True)
+        assert len(words) == 0
 
 
 class TestPdfGenerator:
