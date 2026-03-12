@@ -11,7 +11,7 @@ from word_search.infrastructure import build_pdf, get_words_for_type
 PUZZLE_CONFIG = {
     "letters": {"min_length": 3, "max_length": 7, "budget": 70},
     "numbers": {"min_length": 3, "max_length": 6, "budget": 50},
-    "chinese": {"min_length": 2, "max_length": 6, "budget": 70},
+    "chinese": {"min_length": 2, "max_length": 6, "budget": 65},
     "shapes": {"min_length": 2, "max_length": 4, "budget": 50},
 }
 
